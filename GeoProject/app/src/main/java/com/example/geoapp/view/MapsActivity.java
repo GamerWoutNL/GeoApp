@@ -1,8 +1,13 @@
 package com.example.geoapp.view;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.geoapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -12,8 +17,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private static final int FINE_LOCATION_PERMISSION_REQUEST_CODE = 658;
     private GoogleMap mMap;
 
     @Override
@@ -37,11 +45,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
         mMap = googleMap;
+        mMap.setMyLocationEnabled(true);
 
-        // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(51.495950, 4.866910);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Chaam"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == FINE_LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+            } else {
+                Log.e("PERMISSION_DENIED", "Fine location permission denied by user");
+            }
+        }
     }
 }
