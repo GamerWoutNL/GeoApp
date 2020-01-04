@@ -54,7 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
         mMap = googleMap;
@@ -69,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double lng = location.getLongitude();
 
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),12));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 12));
     }
 
     @Override
@@ -87,17 +87,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        if(this.destination != null){
+        if (this.destination != null) {
             this.destination.remove();
         }
         this.destination = mMap.addMarker(new MarkerOptions().position(latLng).title("Destination"));
         double latitude = latLng.latitude;
         double longitude = latLng.longitude;
-        
+
 /*
         double newLat = (latitude + destination.getPosition().latitude) /2.0;
         double newLong = (longitude + destination.getPosition().longitude) /2.0;*/
-        LatLng newLatLng = new LatLng(latitude,longitude);
-        this.mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng,12));
+        LatLng newLatLng = new LatLng(latitude, longitude);
+        this.mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 12));
+    }
+
+
+    private String getUrl(LatLng origin, LatLng dest) { //deze url moet naar de API worden gestuurd om een route te maken tussen 2 waypoints
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        String trafficMode = "mode=walking";
+        String parameters = str_origin + "&" + str_dest + "&" + trafficMode;
+        String output = "json";
+        return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
     }
 }
+
