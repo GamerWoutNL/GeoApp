@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_REQUEST_CODE = 658;
     private GoogleMap mMap;
@@ -52,6 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
 
+        mMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -65,5 +66,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.e("PERMISSION_DENIED", "Fine location permission denied by user");
             }
         }
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        this.mMap.addMarker(new MarkerOptions().position(latLng));
     }
 }
