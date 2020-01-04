@@ -5,16 +5,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.example.geoapp.R;
+import com.example.geoapp.model.WayPoint;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -23,6 +30,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final int FINE_LOCATION_PERMISSION_REQUEST_CODE = 658;
     private GoogleMap mMap;
+    private Marker destination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +61,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
         mMap.setOnMapClickListener(this);
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),12));
     }
 
     @Override
@@ -70,6 +87,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        this.mMap.addMarker(new MarkerOptions().position(latLng));
+        if(this.destination != null){
+            this.destination.remove();
+        }
+        this.destination = mMap.addMarker(new MarkerOptions().position(latLng).title("Destination"));
+        double latitude = latLng.latitude;
+        double longitude = latLng.longitude;
+        
+/*
+        double newLat = (latitude + destination.getPosition().latitude) /2.0;
+        double newLong = (longitude + destination.getPosition().longitude) /2.0;*/
+        LatLng newLatLng = new LatLng(latitude,longitude);
+        this.mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLatLng,12));
     }
 }
