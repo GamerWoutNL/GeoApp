@@ -62,6 +62,7 @@ public class StatsActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
+            //pak de positie uit de sharedpref lijst en maak daarvan een nieuw SliderFragment Object aan die wordt terug gegeven
             return new SliderFragment();
         }
 
