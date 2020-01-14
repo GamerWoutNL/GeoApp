@@ -1,4 +1,13 @@
 <resources>
-    <string name="app_name">Runnr</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name" translatable="false">Runnr</string>
+    <string name="title_activity_maps" translatable="false">Map</string>
+    <string name="copyright">C Lars and Wout ALL RIGHTS RESERVED</string>
+    <string name="zero_tag" translatable="false">0.0</string>
+
+    <string name="date_tag">Date</string>
+    <string name="time_tag">Time</string>
+    <string name="duration_tag">Duration</string>
+    <string name="distance_tag">Distance</string>
+    <string name="meters_tag">meters</string>
+    <string name="sessions_tag">Session</string>
 </resources>
