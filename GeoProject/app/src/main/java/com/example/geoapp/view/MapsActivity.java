@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.geoapp.R;
@@ -30,6 +32,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.yashovardhan99.timeit.Stopwatch;
+import com.yashovardhan99.timeit.Timer;
 
 import org.json.JSONObject;
 
@@ -52,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GeofencingClient geofencingClient;
     private ImageView ivWorkoutButton;
     private boolean workoutState;
+    public Stopwatch stopwatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +83,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 if (workoutState) {
                     Toast.makeText(v.getContext(), "TRAINING KLAAR", Toast.LENGTH_SHORT).show();
-
+                    stopwatch.pause();
                     // TODO: Save the stats of the workout in shared prefs or SqLite
+
+                    long elapsedTimeMillis = stopwatch.getElapsedTime();
+                    Log.i("TIMERESULT", elapsedTimeMillis+"");
+                    SharedPreferences preferences = getApplicationContext().getSharedPreferences("MyPref",0);
+                   
+                } else{
+                    // stopwatch test
+                    setStopwatch(stopwatchInit());
+                    stopwatch.start();
                 }
 
                 workoutState = !workoutState;
@@ -88,6 +102,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    public Stopwatch stopwatchInit(){
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.setTextView((TextView)findViewById(R.id.timerTextView));
+        return stopwatch;
+    }
+    public void setStopwatch(Stopwatch stopwatch){
+        this.stopwatch = stopwatch;
+    }
     public void changeWorkoutButton() {
         if (Resources.getSystem().getConfiguration().locale.getLanguage().equals("nl")) {
             // Dutch language
