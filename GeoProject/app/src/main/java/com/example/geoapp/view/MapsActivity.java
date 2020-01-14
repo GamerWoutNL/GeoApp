@@ -108,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, elapsedTimeMillis);
 
-                List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+                ArrayList<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
                 if (sessions == null) {
                     sessions = new ArrayList<>();
                 }

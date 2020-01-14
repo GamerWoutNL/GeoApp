@@ -35,7 +35,7 @@ public class StatsActivity extends FragmentActivity {
     private PagerAdapter pagerAdapter;
 
 
-    private List<TrainingSession> trainingSessions;
+    private ArrayList<TrainingSession> trainingSessions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +44,7 @@ public class StatsActivity extends FragmentActivity {
         this.trainingSessions = SharedPrefs.getObject("MY_PREFS", "sessions");
 
         // Instantiate a ViewPager and a PagerAdapter.
-        mPager = (ViewPager) findViewById(R.id.viewPager);
+        mPager = findViewById(R.id.viewPager);
         pagerAdapter = new CustomPagerAdapter(trainingSessions,this);
         mPager.setAdapter(pagerAdapter);
     }

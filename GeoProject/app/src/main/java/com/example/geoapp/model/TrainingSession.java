@@ -5,7 +5,7 @@ public class TrainingSession {
     private String time;
     private String date;
     private long elapsedTime;
-    private float distanceCovered;
+    private double distanceCovered;
 
     public TrainingSession(String time, String date, float distanceCovered, long elapsedTimeMillis) {
         this.time = time;
@@ -26,7 +26,7 @@ public class TrainingSession {
         return elapsedTime;
     }
 
-    public float getDistanceCovered() {
+    public double getDistanceCovered() {
         return distanceCovered;
     }
 }

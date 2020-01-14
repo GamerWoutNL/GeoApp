@@ -13,16 +13,17 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.example.geoapp.R;
 import com.example.geoapp.model.TrainingSession;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomPagerAdapter extends PagerAdapter {
 
     private final Context context;
     private LayoutInflater layoutInflater;
-    private List<TrainingSession> sessions;
+    private ArrayList<TrainingSession> sessions;
 
 
-    public CustomPagerAdapter(List<TrainingSession> sessions, Context context) {
+    public CustomPagerAdapter(ArrayList<TrainingSession> sessions, Context context) {
         this.sessions = sessions;
         this.context = context;
     }
