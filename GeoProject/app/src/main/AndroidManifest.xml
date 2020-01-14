@@ -20,7 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.StatsActivity"></activity>
         <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +44,10 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".view.MapsActivity"
+        android:name=".view.MapsActivity"
+        android:label="@string/title_activity_maps"></activity>
+        <activity
+            android:name=".view.StatsActivity"
             android:label="@string/title_activity_maps"></activity>
     </application>
 
