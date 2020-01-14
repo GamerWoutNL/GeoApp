@@ -1,26 +1,25 @@
 package com.example.geoapp.view;
 
+import com.example.geoapp.control.MyApplication;
+import com.example.geoapp.model.TrainingSession;
+
 public class SliderFragmentCustom extends SliderFragment {
 
-    public long distanceCovered;
-    public long time;
-    public String date;
+    private TrainingSession session;
 
-    public SliderFragmentCustom(long distanceCovered,long time, String date) {
-        this.distanceCovered = distanceCovered;
-        this.time = time;
-        this.date = date;
+    public SliderFragmentCustom(TrainingSession session) {
+        this.session = session;
     }
 
-    public long getDistanceCovered() {
-        return distanceCovered;
+    public float getDistanceCovered() {
+        return session.getDistanceCovered();
     }
 
-    public long getTime() {
-        return time;
+    public String getTime() {
+        return session.getTime();
     }
 
     public String getDate() {
-        return date;
+        return session.getDate();
     }
 }

@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.geoapp.R;
+import com.example.geoapp.model.TrainingSession;
 
 public class SliderFragment extends Fragment {
 

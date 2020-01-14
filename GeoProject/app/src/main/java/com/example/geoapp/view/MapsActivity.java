@@ -182,28 +182,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    // Here is were all the magic happens, balleke
+
     @Override
     public void onMapClick(final LatLng latLng) {
-        // Ekkes de map schoonmaken
         this.mMap.clear();
-
-        // Add a marker of the destination
         mMap.addMarker(new MarkerOptions().position(latLng).title("Destination"));
-
-        // Get the current location and request the route, dikzak
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                // Jouw dikke moeder, Lars
                 String url = getUrl(new LatLng(location.getLatitude(), location.getLongitude()), latLng, "walking");
-
-                // Call this to request the route, josefien
                 new FetchUrl().execute(url);
             }
         });
-
-        // Move that nigga camera, skltj
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
     }
 

@@ -10,12 +10,18 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.geoapp.R;
+import com.example.geoapp.adapter.CustomPagerAdapter;
+import com.example.geoapp.control.SharedPrefs;
+import com.example.geoapp.model.TrainingSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StatsActivity extends FragmentActivity {
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static final int NUM_PAGES = 10;
+
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -28,47 +34,23 @@ public class StatsActivity extends FragmentActivity {
      */
     private PagerAdapter pagerAdapter;
 
+
+    private List<TrainingSession> trainingSessions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide);
 
+        this.trainingSessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.viewPager);
-        pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new CustomPagerAdapter(trainingSessions,this);
         mPager.setAdapter(pagerAdapter);
     }
 
     @Override
     public void onBackPressed() {
-        if (mPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
-            super.onBackPressed();
-        } else {
-            // Otherwise, select the previous step.
-            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
-        }
-    }
-
-    /**
-     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
-     * sequence.
-     */
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-        public ScreenSlidePagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            //pak de positie uit de sharedpref lijst en maak daarvan een nieuw SliderFragment Object aan die wordt terug gegeven
-            return new SliderFragment();
-        }
-
-        @Override
-        public int getCount() {
-            return NUM_PAGES;
-        }
+        super.onBackPressed();
     }
 }
