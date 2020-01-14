@@ -89,13 +89,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     long elapsedTimeMillis = stopwatch.getElapsedTime();
                     Log.i("TIMERESULT", elapsedTimeMillis+"");
                     SharedPreferences preferences = getApplicationContext().getSharedPreferences("MyPref",0);
-                   
                 } else{
                     // stopwatch test
                     setStopwatch(stopwatchInit());
                     stopwatch.start();
                 }
-
                 workoutState = !workoutState;
                 changeWorkoutButton();
             }
