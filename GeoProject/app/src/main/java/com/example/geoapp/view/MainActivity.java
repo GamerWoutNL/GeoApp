@@ -15,14 +15,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.button_goto_map).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.GoToMapButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), MapsActivity.class));
             }
         });
 
-        findViewById(R.id.button_goto_stats).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.GoToStats).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), StatsActivity.class));

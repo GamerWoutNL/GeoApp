@@ -7,25 +7,27 @@
     android:background="@drawable/background_mojito"
     tools:context=".view.MainActivity">
 
-    <Button
-        android:id="@+id/button_goto_map"
+    <ImageView
+        android:id="@+id/GoToMapButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go to map"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="204dp"
+        app:layout_constraintBottom_toTopOf="@+id/GoToStats"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.319" />
+        app:layout_constraintVertical_bias="0.028"
+        app:srcCompat="@drawable/button_go_to_map" />
 
-    <Button
-        android:id="@+id/button_goto_stats"
+    <ImageView
+        android:id="@+id/GoToStats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go to stats"
+        android:layout_marginBottom="216dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:srcCompat="@drawable/button_go_to_stats" />
 </androidx.constraintlayout.widget.ConstraintLayout>
