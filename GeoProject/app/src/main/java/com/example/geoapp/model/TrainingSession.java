@@ -4,13 +4,13 @@ public class TrainingSession {
 
     private String time;
     private String date;
-    private long elapsedTime;
+    private String elapsedTime;
     private double distanceCovered;
 
-    public TrainingSession(String time, String date, float distanceCovered, long elapsedTimeMillis) {
+    public TrainingSession(String time, String date, float distanceCovered, String elapsedTime) {
         this.time = time;
         this.date = date;
-        this.elapsedTime = elapsedTimeMillis / 1000;
+        this.elapsedTime = elapsedTime;
         this.distanceCovered = distanceCovered;
     }
 
@@ -22,7 +22,7 @@ public class TrainingSession {
         return date;
     }
 
-    public long getElapsedTime() {
+    public String getElapsedTime() {
         return elapsedTime;
     }
 

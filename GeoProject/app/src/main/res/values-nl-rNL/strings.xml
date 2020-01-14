@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Runnr</string>
+    <string name="copyright">C Lars en Wout ALLE RECHTEN VOORBEHOUDEN</string>
+    <string name="date_tag">Datum</string>
+    <string name="distance_tag">Afstand</string>
+    <string name="duration_tag">Duur</string>
+    <string name="meters_tag">meter</string>
+    <string name="time_tag">Tijd</string>
+    <string name="sessions_tag">Sessie</string>
+</resources>

@@ -1,11 +1,6 @@
 package com.example.geoapp.view;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -13,19 +8,19 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.se.omapi.Session;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.geoapp.R;
 import com.example.geoapp.control.DataParser;
 import com.example.geoapp.control.SharedPrefs;
 import com.example.geoapp.model.TrainingSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,7 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.yashovardhan99.timeit.Stopwatch;
-import com.yashovardhan99.timeit.Timer;
 
 import org.json.JSONObject;
 
@@ -61,7 +55,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
-    private GeofencingClient geofencingClient;
     private ImageView ivWorkoutButton;
     private boolean workoutState;
     private Stopwatch stopwatch;
@@ -92,7 +85,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         ivWorkoutButton.setOnClickListener((v) -> {
             if (workoutState) {
-                Toast.makeText(v.getContext(), "TRAINING KLAAR", Toast.LENGTH_SHORT).show();
                 stopwatch.pause();
 
                 long elapsedTimeMillis = stopwatch.getElapsedTime();
@@ -106,9 +98,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     distance = location.distanceTo(beginLocation);
                 });
 
-                TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, elapsedTimeMillis);
+                TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, getTimeFromMillies(elapsedTimeMillis));
 
-                ArrayList<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+                List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
                 if (sessions == null) {
                     sessions = new ArrayList<>();
                 }
@@ -119,8 +111,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 setStopwatch(stopwatchInit());
                 stopwatch.start();
 
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> beginLocation = location);
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this, (location) -> {
+                    beginLocation = location;
+                });
             }
+
             workoutState = !workoutState;
             changeWorkoutButton();
         });
@@ -199,7 +194,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     protected synchronized void buildGPSClients() {
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        this.geofencingClient = LocationServices.getGeofencingClient(this);
     }
 
 
