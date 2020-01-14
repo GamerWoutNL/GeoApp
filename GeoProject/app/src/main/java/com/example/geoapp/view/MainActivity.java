@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.example.geoapp.R;
+import com.example.geoapp.control.SharedPrefs;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,6 +16,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //SharedPrefs.deleteObject("MY_PREFS", "sessions");
+        // RUN THIS TO DELETE THE SESSIONS
 
         ImageView goToMapButton = findViewById(R.id.GoToMapButton);
         ImageView goToStatsButton = findViewById(R.id.GoToStatsButton);

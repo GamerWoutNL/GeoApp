@@ -29,7 +29,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.yashovardhan99.timeit.Stopwatch;
 
 import org.json.JSONObject;
@@ -59,15 +58,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean workoutState;
     private Stopwatch stopwatch;
     private Location beginLocation;
-    private float distance;
+    private Location endLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        //SharedPrefs.deleteObject("MY_PREFS", "sessions");
-        // RUN THIS TO DELETE THE SESSIONS
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -95,17 +91,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String formattedDate = df.format(c);
 
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this, (location) -> {
-                    distance = location.distanceTo(beginLocation);
+                    endLocation = location;
+
+                    double distance = 0.0;
+                    if (endLocation != null && beginLocation != null) {
+                        distance = endLocation.distanceTo(beginLocation);
+                    }
+
+                    // This is an abstract factory
+                    TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted + 3600000), formattedDate, (int)distance, getTimeFromMillies(elapsedTimeMillis));
+
+                    List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+                    if (sessions == null) {
+                        sessions = new ArrayList<>();
+                    }
+                    sessions.add(trainingSession);
+                    SharedPrefs.addObject("MY_PREFS", "sessions", sessions);
                 });
 
-                TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, getTimeFromMillies(elapsedTimeMillis));
 
-                List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
-                if (sessions == null) {
-                    sessions = new ArrayList<>();
-                }
-                sessions.add(trainingSession);
-                SharedPrefs.addObject("MY_PREFS", "sessions", sessions);
+
             } else {
                 // stopwatch test
                 setStopwatch(stopwatchInit());
@@ -168,11 +173,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
-            }
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
         });
     }
 
@@ -182,18 +184,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapClick(final LatLng latLng) {
         this.mMap.clear();
         mMap.addMarker(new MarkerOptions().position(latLng).title("Destination"));
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                String url = getUrl(new LatLng(location.getLatitude(), location.getLongitude()), latLng, "walking");
-                new FetchUrl().execute(url);
-            }
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            String url = getUrl(new LatLng(location.getLatitude(), location.getLongitude()), latLng, "walking");
+            new FetchUrl().execute(url);
         });
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
     }
 
     protected synchronized void buildGPSClients() {
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
+    private double calcDistance(float lata, float longa, float latb, float longb) {
+        double d2r = Math.PI / 180;
+        double dlong = (longa - longb) * d2r;
+        double dlat = (lata - latb) * d2r;
+        double a = Math.pow(Math.sin(dlat / 2.0), 2) + Math.cos(latb * d2r)
+                * Math.cos(lata * d2r) * Math.pow(Math.sin(dlong / 2.0), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return 6367 * c;
     }
 
 

@@ -5,9 +5,9 @@ public class TrainingSession {
     private String time;
     private String date;
     private String elapsedTime;
-    private double distanceCovered;
+    private int distanceCovered;
 
-    public TrainingSession(String time, String date, float distanceCovered, String elapsedTime) {
+    public TrainingSession(String time, String date, int distanceCovered, String elapsedTime) {
         this.time = time;
         this.date = date;
         this.elapsedTime = elapsedTime;
@@ -26,7 +26,7 @@ public class TrainingSession {
         return elapsedTime;
     }
 
-    public double getDistanceCovered() {
+    public int getDistanceCovered() {
         return distanceCovered;
     }
 }
