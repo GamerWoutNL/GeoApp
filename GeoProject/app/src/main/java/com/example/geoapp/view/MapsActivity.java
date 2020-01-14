@@ -6,22 +6,26 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.geoapp.R;
 import com.example.geoapp.control.DataParser;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -39,11 +43,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private static final String MY_API_KEY = "725b85df-2ff8-4de2-bebc-2ab56b12b701";
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
+    private GeofencingClient geofencingClient;
+    private ImageView ivWorkoutButton;
+    private boolean workoutState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,20 +62,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             checkLocationPermission();
         }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        MapView mapView = findViewById(R.id.map);
+        mapView.onCreate(savedInstanceState);
+        mapView.onStart();
+        mapView.getMapAsync(this);
+
+
+        this.workoutState = false;
+        this.ivWorkoutButton = findViewById(R.id.buttonWorkoutDone);
+
+        changeWorkoutButton();
+
+        ivWorkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (workoutState) {
+                    Toast.makeText(v.getContext(), "TRAINING KLAAR", Toast.LENGTH_SHORT).show();
+
+                    // TODO: Save the stats of the workout in shared prefs or SqLite
+                }
+
+                workoutState = !workoutState;
+                changeWorkoutButton();
+            }
+        });
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+    public void changeWorkoutButton() {
+        if (Resources.getSystem().getConfiguration().locale.getLanguage().equals("nl")) {
+            // Dutch language
+            if (workoutState) {
+                ivWorkoutButton.setImageResource(R.drawable.button_training_klaar);
+            } else {
+                ivWorkoutButton.setImageResource(R.drawable.button_begin_training);
+            }
+        } else {
+            // English language
+            if (workoutState) {
+                ivWorkoutButton.setImageResource(R.drawable.button_workout_done);
+            } else {
+                ivWorkoutButton.setImageResource(R.drawable.button_begin_workout);
+            }
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
@@ -78,12 +116,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
+                buildGPSClients();
                 mMap.setMyLocationEnabled(true);
             }
         }
         else {
-            buildGoogleApiClient();
+            buildGPSClients();
             mMap.setMyLocationEnabled(true);
         }
 
@@ -118,11 +156,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         // Move that nigga camera, skltj
-        this.mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
     }
 
-    protected synchronized void buildGoogleApiClient() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    protected synchronized void buildGPSClients() {
+        this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        this.geofencingClient = LocationServices.getGeofencingClient(this);
     }
 
 
@@ -177,28 +216,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
                 //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
 
 
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
             return false;
@@ -223,7 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             == PackageManager.PERMISSION_GRANTED) {
 
                         if (fusedLocationClient == null) {
-                            buildGoogleApiClient();
+                            buildGPSClients();
                         }
                         mMap.setMyLocationEnabled(true);
                     }
