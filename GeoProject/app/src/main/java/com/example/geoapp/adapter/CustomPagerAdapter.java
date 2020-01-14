@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,7 +13,6 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.example.geoapp.R;
 import com.example.geoapp.model.TrainingSession;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CustomPagerAdapter extends PagerAdapter {

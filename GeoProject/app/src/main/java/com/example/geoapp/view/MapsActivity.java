@@ -29,7 +29,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.yashovardhan99.timeit.Stopwatch;
 
 import org.json.JSONObject;
@@ -59,15 +58,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean workoutState;
     private Stopwatch stopwatch;
     private Location beginLocation;
-    private double distance;
+    private Location endLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        //SharedPrefs.deleteObject("MY_PREFS", "sessions");
-        // RUN THIS TO DELETE THE SESSIONS
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -95,23 +91,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String formattedDate = df.format(c);
 
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this, (location) -> {
-                    distance = location.distanceTo(beginLocation);
+                    endLocation = location;
+
+                    double distance = 0.0;
+                    if (endLocation != null && beginLocation != null) {
+                        distance = endLocation.distanceTo(beginLocation);
+                    }
+
+                    // This is an abstract factory
+                    TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted + 3600000), formattedDate, (int)distance, getTimeFromMillies(elapsedTimeMillis));
+
+                    List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+                    if (sessions == null) {
+                        sessions = new ArrayList<>();
+                    }
+                    sessions.add(trainingSession);
+                    SharedPrefs.addObject("MY_PREFS", "sessions", sessions);
                 });
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
-                TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, getTimeFromMillies(elapsedTimeMillis));
 
-                List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
-                if (sessions == null) {
-                    sessions = new ArrayList<>();
-                }
-                sessions.add(trainingSession);
-                SharedPrefs.addObject("MY_PREFS", "sessions", sessions);
             } else {
                 // stopwatch test
                 setStopwatch(stopwatchInit());
