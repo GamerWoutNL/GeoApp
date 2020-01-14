@@ -13,6 +13,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.se.omapi.Session;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.geoapp.R;
 import com.example.geoapp.control.DataParser;
+import com.example.geoapp.control.SharedPrefs;
+import com.example.geoapp.model.TrainingSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
@@ -43,25 +46,35 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String MY_API_KEY = "725b85df-2ff8-4de2-bebc-2ab56b12b701";
+
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private GeofencingClient geofencingClient;
     private ImageView ivWorkoutButton;
     private boolean workoutState;
-    public Stopwatch stopwatch;
+    private Stopwatch stopwatch;
+    private Location beginLocation;
+    private float distance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //SharedPrefs.deleteObject("MY_PREFS", "sessions");
+        // RUN THIS TO DELETE THE SESSIONS
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -72,42 +85,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapView.onStart();
         mapView.getMapAsync(this);
 
-
         this.workoutState = false;
         this.ivWorkoutButton = findViewById(R.id.buttonWorkoutDone);
 
         changeWorkoutButton();
 
-        ivWorkoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (workoutState) {
-                    Toast.makeText(v.getContext(), "TRAINING KLAAR", Toast.LENGTH_SHORT).show();
-                    stopwatch.pause();
-                    // TODO: Save the stats of the workout in shared prefs or SqLite
+        ivWorkoutButton.setOnClickListener((v) -> {
+            if (workoutState) {
+                Toast.makeText(v.getContext(), "TRAINING KLAAR", Toast.LENGTH_SHORT).show();
+                stopwatch.pause();
 
-                    long elapsedTimeMillis = stopwatch.getElapsedTime();
-                    Log.i("TIMERESULT", elapsedTimeMillis+"");
-                    SharedPreferences preferences = getApplicationContext().getSharedPreferences("MyPref",0);
-                } else{
-                    // stopwatch test
-                    setStopwatch(stopwatchInit());
-                    stopwatch.start();
+                long elapsedTimeMillis = stopwatch.getElapsedTime();
+                long timeStarted = stopwatch.getStart();
+
+                Date c = Calendar.getInstance().getTime();
+                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                String formattedDate = df.format(c);
+
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this, (location) -> {
+                    distance = location.distanceTo(beginLocation);
+                });
+
+                TrainingSession trainingSession = new TrainingSession(getTimeFromMillies(timeStarted), formattedDate, distance, elapsedTimeMillis);
+
+                List<TrainingSession> sessions = SharedPrefs.getObject("MY_PREFS", "sessions");
+                if (sessions == null) {
+                    sessions = new ArrayList<>();
                 }
-                workoutState = !workoutState;
-                changeWorkoutButton();
+                sessions.add(trainingSession);
+                SharedPrefs.addObject("MY_PREFS", "sessions", sessions);
+            } else {
+                // stopwatch test
+                setStopwatch(stopwatchInit());
+                stopwatch.start();
+
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> beginLocation = location);
             }
+            workoutState = !workoutState;
+            changeWorkoutButton();
         });
     }
 
     public Stopwatch stopwatchInit(){
         Stopwatch stopwatch = new Stopwatch();
-        stopwatch.setTextView((TextView)findViewById(R.id.timerTextView));
+        stopwatch.setTextView(findViewById(R.id.timerTextView));
         return stopwatch;
     }
+
     public void setStopwatch(Stopwatch stopwatch){
         this.stopwatch = stopwatch;
     }
+
     public void changeWorkoutButton() {
         if (Resources.getSystem().getConfiguration().locale.getLanguage().equals("nl")) {
             // Dutch language
@@ -233,8 +261,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return data;
     }
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
     public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -263,13 +289,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // permission was granted. Do the
                     // contacts-related task you need to do.
@@ -288,7 +312,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Permission denied, Disable the functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
-                return;
+                break;
             }
 
             // other 'case' lines to check for other permissions this app might request.
@@ -398,6 +422,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d("onPostExecute", "without Polylines drawn");
             }
         }
+    }
+
+    private String getTimeFromMillies(long milliseconds) {
+        int seconds = (int) (milliseconds / 1000) % 60;
+        int minutes = (int) ((milliseconds / (1000*60)) % 60);
+        int hours   = (int) ((milliseconds / (1000*60*60)) % 24);
+
+        return hours + ":" + minutes + ":" + seconds;
     }
 }
 
