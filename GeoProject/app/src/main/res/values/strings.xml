@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">GeoApp</string>
+    <string name="app_name">Runnr</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
