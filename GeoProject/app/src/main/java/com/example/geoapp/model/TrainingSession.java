@@ -7,7 +7,7 @@ public class TrainingSession {
     private String elapsedTime;
     private double distanceCovered;
 
-    public TrainingSession(String time, String date, float distanceCovered, String elapsedTime) {
+    public TrainingSession(String time, String date, double distanceCovered, String elapsedTime) {
         this.time = time;
         this.date = date;
         this.elapsedTime = elapsedTime;
